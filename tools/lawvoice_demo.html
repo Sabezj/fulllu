@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LawVoice — Демо-стенд</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: #1c2330;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --ink: #e6edf3;
+  --muted: #7d8590;
+  --soft: #484f58;
+  --accent: #1a9e6e;
+  --accent2: #22c55e;
+  --accent-glow: rgba(26,158,110,0.18);
+  --danger: #f85149;
+  --warn: #d29922;
+  --blue: #388bfd;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px}
+a{color:var(--accent2);text-decoration:none}
+
+/* ── TOP BAR ── */
+.topbar{display:flex;align-items:center;gap:16px;padding:14px 28px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:-0.03em}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo-sub{font-size:11px;font-weight:400;color:var(--muted);letter-spacing:0.04em;text-transform:uppercase}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:0.04em}
+.badge-green{background:rgba(34,197,94,0.12);color:var(--accent2);border:1px solid rgba(34,197,94,0.25)}
+.badge-blue{background:rgba(56,139,253,0.12);color:var(--blue);border:1px solid rgba(56,139,253,0.25)}
+.badge-warn{background:rgba(210,153,34,0.12);color:var(--warn);border:1px solid rgba(210,153,34,0.25)}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:2px;padding:0 28px;background:var(--bg2);border-bottom:1px solid var(--border)}
+.tab{padding:12px 18px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;user-select:none}
+.tab:hover{color:var(--ink)}
+.tab.active{color:var(--accent2);border-bottom-color:var(--accent2)}
+
+/* ── CONTENT ── */
+.page{display:none;padding:24px 28px;max-width:1400px;margin:0 auto}
+.page.active{display:block}
+
+/* ── GRID HELPERS ── */
+.grid2{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid2x{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.stack>*+*{margin-top:12px}
+
+/* ── PANEL ── */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.panel-title{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.panel-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.panel-title-row .panel-title{margin-bottom:0}
+
+/* ── STAT CARDS ── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
+.stat-val{font-size:28px;font-weight:800;letter-spacing:-0.04em;line-height:1}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.green{color:var(--accent2)}
+.red{color:var(--danger)}
+.warn{color:var(--warn)}
+.blue{color:var(--blue)}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">⚖</div>
+    <div>
+      <div>LawVoice</div>
+      <div class="logo-sub">Правовой голосовой ассистент</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="badge badge-green"><span class="dot"></span>Система активна</span>
+    <span class="badge badge-blue">OpenAI Realtime API</span>
+    <span class="badge badge-warn">MVP · v1.0</span>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="showTab('agent')">🎙 Голосовой агент</div>
+  <div class="tab" onclick="showTab('grafana')">📊 Мониторинг (Grafana)</div>
+  <div class="tab" onclick="showTab('logs')">📋 Сессионные логи</div>
+  <div class="tab" onclick="showTab('arch')">🏗 Архитектура</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE: AGENT -->
+<div id="page-agent" class="page active">
+  <div class="grid2">
+
+    <!-- LEFT: controls -->
+    <div class="stack">
+      <div class="panel">
+        <div class="panel-title">Персона и стиль диалога</div>
+        <div class="stack">
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Активный профиль</div>
+            <div id="profile-select-ui" style="display:flex;flex-direction:column;gap:6px"></div>
+          </div>
+          <div id="profile-desc" style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;font-size:13px;color:var(--muted);line-height:1.5;min-height:60px"></div>
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Возрастной режим</div>
+            <div style="display:flex;gap:8px">
+              <button class="btn-mode active" onclick="setMode(this,'teen')">Подросток</button>
+              <button class="btn-mode" onclick="setMode(this,'adult')">18+</button>
+            </div>
+          </div>
+          <div id="adaptive-state" style="font-size:12px;color:var(--muted);padding:8px 12px;background:var(--bg3);border-radius:var(--radius-sm)">
+            Режим: age=teen · anxiety=medium · risk=low
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Состояние сессии</div>
+        <div class="stack" style="font-size:13px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="color:var(--muted)">Соединение</span>
+            <span id="conn-status" class="badge badge-green"><span class="dot"></span>WebRTC активен</span>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span style="color:var(--muted)">Голос</span><span>Ash (sage / coral / verse)</span>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span style="color:var(--muted)">Модель</span><span>gpt-4o-realtime-mini</span>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span style="color:var(--muted)">Длительность</span><span id="sess-dur">04:37</span>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span style="color:var(--muted)">Токены</span><span id="sess-tok">2 841</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Управление голосом</div>
+        <div class="stack">
+          <button class="btn-primary" onclick="toggleSession(this)">⏹ Завершить диалог</button>
+          <button class="btn-outline" onclick="toggleMute(this)">🎤 Отключить микрофон</button>
+        </div>
+        <div style="margin-top:14px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Аудио-поток</div>
+          <canvas id="audio-canvas" width="300" height="60" style="width:100%;border-radius:8px;background:var(--bg3)"></canvas>
+          <div style="display:flex;gap:10px;margin-top:8px">
+            <div style="flex:1">
+              <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Вход</div>
+              <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden"><div id="in-lvl" style="height:100%;width:65%;background:var(--accent2);border-radius:3px;transition:width .1s"></div></div>
+            </div>
+            <div style="flex:1">
+              <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Выход</div>
+              <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden"><div id="out-lvl" style="height:100%;width:40%;background:var(--blue);border-radius:3px;transition:width .1s"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Использование API</div>
+        <div class="stack" style="font-size:12px">
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Текст вход</span><span>1 204 tok · $0.006</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Аудио вход</span><span>892 tok · $0.036</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Текст выход</span><span>512 tok · $0.010</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Аудио выход</span><span>233 tok · $0.019</span></div>
+          <div style="border-top:1px solid var(--border);padding-top:8px;display:flex;justify-content:space-between;font-weight:700">
+            <span>Итого</span><span class="green">$0.071</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: conversation -->
+    <div class="stack">
+      <div class="panel" style="min-height:520px">
+        <div class="panel-title-row">
+          <div class="panel-title">Диалог</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="scenario-btn active" onclick="switchScenario('cyber',this)" style="font-size:11px;padding:4px 10px;border-radius:999px;border:1px solid var(--border2);background:var(--accent-glow);color:var(--accent2);cursor:pointer;font:inherit">Кибербуллинг</button>
+            <button class="scenario-btn" onclick="switchScenario('shop',this)" style="font-size:11px;padding:4px 10px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font:inherit">Онлайн-покупки</button>
+            <button class="scenario-btn" onclick="switchScenario('school',this)" style="font-size:11px;padding:4px 10px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font:inherit">Права в школе</button>
+            <span class="badge badge-green"><span class="dot"></span>Запись</span>
+          </div>
+        </div>
+        <div id="conv-log" style="display:flex;flex-direction:column;gap:12px;max-height:460px;overflow-y:auto;padding-right:4px"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Журнал действий агента</div>
+        <div id="activity-log" style="font-family:ui-monospace,monospace;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE: GRAFANA -->
+<div id="page-grafana" class="page">
+  <div class="stat-grid">
+    <div class="stat"><div class="stat-label">Активных сессий</div><div class="stat-val green" id="g-sessions">12</div><div class="stat-sub">↑ 3 за последний час</div></div>
+    <div class="stat"><div class="stat-label">Реплик сегодня</div><div class="stat-val blue" id="g-replies">347</div><div class="stat-sub">avg 28.9 / сессия</div></div>
+    <div class="stat"><div class="stat-label">Ср. длительность</div><div class="stat-val" id="g-dur">6:12</div><div class="stat-sub">мин · медиана 4:47</div></div>
+    <div class="stat"><div class="stat-label">Стоимость API</div><div class="stat-val warn" id="g-cost">$2.84</div><div class="stat-sub">за сегодня</div></div>
+  </div>
+
+  <div class="grid2x" style="margin-bottom:20px">
+    <div class="panel">
+      <div class="panel-title-row">
+        <div class="panel-title">Сессии по времени суток</div>
+        <span style="font-size:11px;color:var(--muted)">последние 24 ч</span>
+      </div>
+      <canvas id="chart-sessions" height="160"></canvas>
+    </div>
+    <div class="panel">
+      <div class="panel-title-row">
+        <div class="panel-title">Токены / мин</div>
+        <span style="font-size:11px;color:var(--muted)">realtime stream</span>
+      </div>
+      <canvas id="chart-tokens" height="160"></canvas>
+    </div>
+  </div>
+
+  <div class="grid3" style="margin-bottom:20px">
+    <div class="panel">
+      <div class="panel-title">Профили агента</div>
+      <canvas id="chart-profiles" height="180"></canvas>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Темы обращений</div>
+      <canvas id="chart-topics" height="180"></canvas>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Latency (мс)</div>
+      <canvas id="chart-latency" height="180"></canvas>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title-row">
+      <div class="panel-title">Prometheus · последние метрики</div>
+      <span class="badge badge-green"><span class="dot"></span>scrape ok · 15s</span>
+    </div>
+    <div style="font-family:ui-monospace,monospace;font-size:12px;color:var(--muted);display:grid;grid-template-columns:1fr 1fr;gap:4px 32px">
+      <span>lawvoice_sessions_total</span><span class="green">347</span>
+      <span>lawvoice_sessions_active</span><span class="green">12</span>
+      <span>lawvoice_tokens_input_total</span><span class="blue">418 204</span>
+      <span>lawvoice_tokens_output_total</span><span class="blue">89 512</span>
+      <span>lawvoice_api_cost_usd_total</span><span class="warn">2.84</span>
+      <span>lawvoice_session_duration_seconds_p50</span><span>287</span>
+      <span>lawvoice_session_duration_seconds_p95</span><span>612</span>
+      <span>lawvoice_errors_total</span><span class="red">3</span>
+      <span>lawvoice_safety_triggers_total</span><span class="warn">7</span>
+      <span>process_resident_memory_bytes</span><span>148 MB</span>
+      <span>nodejs_eventloop_lag_seconds</span><span>0.0021</span>
+      <span>http_requests_total{status="200"}</span><span class="green">1 204</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE: LOGS -->
+<div id="page-logs" class="page">
+  <div class="stat-grid">
+    <div class="stat"><div class="stat-label">Сессий всего</div><div class="stat-val green">347</div><div class="stat-sub">с момента запуска</div></div>
+    <div class="stat"><div class="stat-label">Средний рейтинг</div><div class="stat-val blue">4.7 / 5</div><div class="stat-sub">по отзывам пользователей</div></div>
+    <div class="stat"><div class="stat-label">Safety-триггеров</div><div class="stat-val warn">7</div><div class="stat-sub">переключений в кризис-режим</div></div>
+    <div class="stat"><div class="stat-label">Ошибок API</div><div class="stat-val red">3</div><div class="stat-sub">за всё время</div></div>
+  </div>
+
+  <div class="panel" style="margin-bottom:20px">
+    <div class="panel-title-row">
+      <div class="panel-title">Журнал сессий</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-outline" style="font-size:11px;padding:4px 10px" onclick="filterLogs('all')">Все</button>
+        <button class="btn-outline" style="font-size:11px;padding:4px 10px" onclick="filterLogs('safety')">⚠ Safety</button>
+        <button class="btn-outline" style="font-size:11px;padding:4px 10px" onclick="filterLogs('error')">✕ Ошибки</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table id="sessions-table" style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border)">
+            <th style="text-align:left;padding:8px 10px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.06em">ID сессии</th>
+            <th style="text-align:left;padding:8px 10px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.06em">Время</th>
+            <th style="text-align:left;padding:8px 10px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.06em">Профиль</th>
+            <th style="text-align:left;padding:8px 10px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.06em">Тема</th>
+            <th style="text-align:left;padding:8px 10px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.06em">Реплик</th>
+            <th style="text-align:left;padding:8px 10px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.06em">Токены</th>
+            <th style="text-align:left;padding:8px 10px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.06em">Статус</th>
+          </tr>
+        </thead>
+        <tbody id="logs-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid2x">
+    <div class="panel">
+      <div class="panel-title">Детали сессии · sess_0019</div>
+      <div style="font-family:ui-monospace,monospace;font-size:12px;line-height:1.7;color:var(--muted)">
+        <div><span style="color:var(--accent2)">[10:14:02]</span> SESSION_START · profile=lawvoice_mentor · age=teen</div>
+        <div><span style="color:var(--accent2)">[10:14:03]</span> WEBRTC_CONNECTED · ice=completed · latency=48ms</div>
+        <div><span style="color:var(--accent2)">[10:14:08]</span> USER_SPEECH · duration=3.2s · tokens=42</div>
+        <div><span style="color:var(--accent2)">[10:14:09]</span> KNOWLEDGE_SEARCH · query="кибербуллинг школа" · hits=3</div>
+        <div><span style="color:var(--accent2)">[10:14:11]</span> AGENT_RESPONSE · tokens=187 · audio=2.4s</div>
+        <div><span style="color:var(--accent2)">[10:14:18]</span> USER_SPEECH · duration=5.1s · tokens=68</div>
+        <div><span style="color:var(--accent2)">[10:14:20]</span> ADAPTIVE_SWITCH · anxiety=high → profile=lawvoice_safety</div>
+        <div><span style="color:var(--warn)">[10:14:20]</span> SAFETY_TRIGGER · reason=threat_detected · escalated=true</div>
+        <div><span style="color:var(--accent2)">[10:14:22]</span> AGENT_RESPONSE · tokens=214 · audio=3.1s · mode=crisis</div>
+        <div><span style="color:var(--accent2)">[10:19:44]</span> SESSION_END · duration=5m42s · total_tokens=1847</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Детали сессии · sess_0031</div>
+      <div style="font-family:ui-monospace,monospace;font-size:12px;line-height:1.7;color:var(--muted)">
+        <div><span style="color:var(--accent2)">[11:02:17]</span> SESSION_START · profile=lawvoice_analyst · age=teen</div>
+        <div><span style="color:var(--accent2)">[11:02:18]</span> WEBRTC_CONNECTED · ice=completed · latency=52ms</div>
+        <div><span style="color:var(--accent2)">[11:02:24]</span> USER_SPEECH · duration=4.8s · tokens=61</div>
+        <div><span style="color:var(--accent2)">[11:02:25]</span> KNOWLEDGE_SEARCH · query="возврат товара маркетплейс" · hits=5</div>
+        <div><span style="color:var(--accent2)">[11:02:27]</span> AGENT_RESPONSE · tokens=203 · audio=2.9s</div>
+        <div><span style="color:var(--accent2)">[11:02:35]</span> USER_SPEECH · duration=2.1s · tokens=28</div>
+        <div><span style="color:var(--accent2)">[11:02:37]</span> AGENT_RESPONSE · tokens=156 · audio=2.2s</div>
+        <div><span style="color:var(--accent2)">[11:02:44]</span> USER_SPEECH · duration=1.4s · tokens=19</div>
+        <div><span style="color:var(--accent2)">[11:02:46]</span> AGENT_RESPONSE · tokens=98 · audio=1.4s · checklist=true</div>
+        <div><span style="color:var(--accent2)">[11:06:51]</span> SESSION_END · duration=4m34s · total_tokens=1124</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE: ARCH -->
+<div id="page-arch" class="page">
+  <div class="grid2x" style="margin-bottom:20px">
+    <div class="panel">
+      <div class="panel-title">Стек технологий</div>
+      <div class="stack" style="font-size:13px">
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted)">Голосовой движок</span><span>OpenAI Realtime API (WebRTC)</span></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted)">Бэкенд</span><span>Node.js · Express</span></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted)">Эмбеддинги</span><span>OpenAI text-embedding-3-small</span></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted)">Векторный поиск</span><span>In-memory cosine similarity</span></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted)">Мониторинг</span><span>Prometheus + Grafana</span></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted)">Алерты</span><span>Alertmanager</span></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted)">Деплой</span><span>Docker · Nginx · SSL</span></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0"><span style="color:var(--muted)">Фронтенд</span><span>Vanilla JS · WebRTC · Chart.js</span></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Профили агента</div>
+      <div class="stack" style="font-size:13px">
+        <div style="padding:10px;background:var(--bg3);border-radius:var(--radius-sm);border-left:3px solid var(--accent2)">
+          <div style="font-weight:600;margin-bottom:3px">Правовой наставник</div>
+          <div style="color:var(--muted);font-size:12px">Голос: sage · Спокойный, структурный, объясняет права простым языком</div>
+        </div>
+        <div style="padding:10px;background:var(--bg3);border-radius:var(--radius-sm);border-left:3px solid var(--blue)">
+          <div style="font-weight:600;margin-bottom:3px">Критический аналитик</div>
+          <div style="color:var(--muted);font-size:12px">Голос: ash · Скептичный, учит думать, задаёт правильные вопросы</div>
+        </div>
+        <div style="padding:10px;background:var(--bg3);border-radius:var(--radius-sm);border-left:3px solid var(--warn)">
+          <div style="font-weight:600;margin-bottom:3px">Старший товарищ</div>
+          <div style="color:var(--muted);font-size:12px">Голос: coral · Эмпатичный, свойский, поддерживает без осуждения</div>
+        </div>
+        <div style="padding:10px;background:var(--bg3);border-radius:var(--radius-sm);border-left:3px solid var(--danger)">
+          <div style="font-weight:600;margin-bottom:3px">Антикризисный помощник</div>
+          <div style="color:var(--muted);font-size:12px">Голос: verse · Спокойный, уверенный, приоритет — безопасность</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Architecture diagram as SVG -->
+  <div class="panel">
+    <div class="panel-title">Схема системы</div>
+    <svg viewBox="0 0 900 340" style="width:100%;max-height:340px;display:block" font-family="Inter,system-ui,sans-serif" font-size="12">
+      <!-- Browser -->
+      <rect x="20" y="120" width="130" height="60" rx="10" fill="#1c2330" stroke="#388bfd" stroke-width="1.5"/>
+      <text x="85" y="145" text-anchor="middle" fill="#e6edf3" font-weight="600">Браузер</text>
+      <text x="85" y="162" text-anchor="middle" fill="#7d8590">WebRTC / JS</text>
+
+      <!-- Arrow browser -> server -->
+      <line x1="150" y1="150" x2="210" y2="150" stroke="#484f58" stroke-width="1.5" marker-end="url(#arr)"/>
+      <text x="180" y="143" text-anchor="middle" fill="#7d8590" font-size="10">HTTPS/WS</text>
+
+      <!-- Node.js server -->
+      <rect x="210" y="110" width="140" height="80" rx="10" fill="#1c2330" stroke="#1a9e6e" stroke-width="1.5"/>
+      <text x="280" y="140" text-anchor="middle" fill="#e6edf3" font-weight="600">Node.js</text>
+      <text x="280" y="157" text-anchor="middle" fill="#7d8590">Express · server.js</text>
+      <text x="280" y="174" text-anchor="middle" fill="#7d8590">embeddingsWorker</text>
+
+      <!-- Arrow server -> OpenAI -->
+      <line x1="350" y1="150" x2="420" y2="150" stroke="#484f58" stroke-width="1.5" marker-end="url(#arr)"/>
+      <text x="385" y="143" text-anchor="middle" fill="#7d8590" font-size="10">Realtime API</text>
+
+      <!-- OpenAI -->
+      <rect x="420" y="120" width="130" height="60" rx="10" fill="#1c2330" stroke="#22c55e" stroke-width="1.5"/>
+      <text x="485" y="145" text-anchor="middle" fill="#e6edf3" font-weight="600">OpenAI</text>
+      <text x="485" y="162" text-anchor="middle" fill="#7d8590">gpt-4o-realtime</text>
+
+      <!-- Profiles -->
+      <rect x="210" y="230" width="140" height="50" rx="10" fill="#1c2330" stroke="#484f58" stroke-width="1.5"/>
+      <text x="280" y="252" text-anchor="middle" fill="#e6edf3" font-weight="600">Профили</text>
+      <text x="280" y="268" text-anchor="middle" fill="#7d8590">JSON · 4 персоны</text>
+      <line x1="280" y1="230" x2="280" y2="190" stroke="#484f58" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- Knowledge base -->
+      <rect x="20" y="230" width="130" height="50" rx="10" fill="#1c2330" stroke="#484f58" stroke-width="1.5"/>
+      <text x="85" y="252" text-anchor="middle" fill="#e6edf3" font-weight="600">База знаний</text>
+      <text x="85" y="268" text-anchor="middle" fill="#7d8590">Embeddings · RAG</text>
+      <line x1="150" y1="255" x2="210" y2="255" stroke="#484f58" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- Prometheus -->
+      <rect x="600" y="80" width="130" height="50" rx="10" fill="#1c2330" stroke="#d29922" stroke-width="1.5"/>
+      <text x="665" y="102" text-anchor="middle" fill="#e6edf3" font-weight="600">Prometheus</text>
+      <text x="665" y="118" text-anchor="middle" fill="#7d8590">:9090 · /metrics</text>
+      <line x1="550" y1="130" x2="600" y2="105" stroke="#484f58" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- Grafana -->
+      <rect x="600" y="170" width="130" height="50" rx="10" fill="#1c2330" stroke="#f85149" stroke-width="1.5"/>
+      <text x="665" y="192" text-anchor="middle" fill="#e6edf3" font-weight="600">Grafana</text>
+      <text x="665" y="208" text-anchor="middle" fill="#7d8590">:3001 · dashboards</text>
+      <line x1="665" y1="170" x2="665" y2="130" stroke="#484f58" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- Nginx -->
+      <rect x="600" y="260" width="130" height="50" rx="10" fill="#1c2330" stroke="#484f58" stroke-width="1.5"/>
+      <text x="665" y="282" text-anchor="middle" fill="#e6edf3" font-weight="600">Nginx + SSL</text>
+      <text x="665" y="298" text-anchor="middle" fill="#7d8590">reverse proxy</text>
+      <line x1="150" y1="170" x2="600" y2="285" stroke="#484f58" stroke-width="1" stroke-dasharray="4 3"/>
+
+      <!-- Alertmanager -->
+      <rect x="760" y="80" width="120" height="50" rx="10" fill="#1c2330" stroke="#484f58" stroke-width="1.5"/>
+      <text x="820" y="102" text-anchor="middle" fill="#e6edf3" font-weight="600">Alertmanager</text>
+      <text x="820" y="118" text-anchor="middle" fill="#7d8590">:9093</text>
+      <line x1="730" y1="105" x2="760" y2="105" stroke="#484f58" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#484f58"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ STYLES (buttons etc) -->
+<style>
+.btn-primary{width:100%;padding:11px;border-radius:var(--radius-sm);border:0;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font:inherit;font-weight:700;cursor:pointer;font-size:13px}
+.btn-outline{width:100%;padding:10px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:transparent;color:var(--ink);font:inherit;font-weight:500;cursor:pointer;font-size:13px}
+.btn-outline:hover{background:var(--bg3)}
+.btn-mode{flex:1;padding:8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--muted);font:inherit;font-size:12px;cursor:pointer;transition:all .15s}
+.btn-mode.active{background:var(--accent-glow);border-color:var(--accent);color:var(--accent2)}
+.msg{padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;line-height:1.5;max-width:85%}
+.msg-user{background:var(--bg3);align-self:flex-end;border:1px solid var(--border)}
+.msg-agent{background:rgba(26,158,110,0.1);border:1px solid rgba(26,158,110,0.2);align-self:flex-start}
+.msg-meta{font-size:10px;color:var(--muted);margin-top:3px}
+.msg-wrap{display:flex;flex-direction:column}
+.msg-wrap.user{align-items:flex-end}
+.msg-wrap.agent{align-items:flex-start}
+.log-entry{padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.log-entry:last-child{border-bottom:0}
+.pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600}
+.pill-green{background:rgba(34,197,94,0.12);color:var(--accent2)}
+.pill-warn{background:rgba(210,153,34,0.12);color:var(--warn)}
+.pill-red{background:rgba(248,81,73,0.12);color:var(--danger)}
+.pill-blue{background:rgba(56,139,253,0.12);color:var(--blue)}
+</style>
+
+<!-- ═══════════════════════════════════════════════════════ SCRIPTS -->
+<script>
+// ── Tab switching ──────────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'grafana') initCharts();
+}
+
+// ── Profiles data ──────────────────────────────────────────────────
+const PROFILES = [
+  { id: 'mentor',   name: 'Правовой наставник',      voice: 'sage',  color: '#22c55e', desc: 'Спокойный, структурный. Объясняет права простым языком, без давления и канцелярита.' },
+  { id: 'analyst',  name: 'Критический аналитик',    voice: 'ash',   color: '#388bfd', desc: 'Немного скептичный, учит думать. Задаёт правильные вопросы, разделяет факты и эмоции.' },
+  { id: 'peer',     name: 'Старший товарищ',          voice: 'coral', color: '#d29922', desc: 'Эмпатичный, свойский. Поддерживает без осуждения, даёт реальные шаги прямо сейчас.' },
+  { id: 'safety',   name: 'Антикризисный помощник',  voice: 'verse', color: '#f85149', desc: 'Спокойный, уверенный. Приоритет — безопасность. При угрозе сразу переходит к делу.' },
+];
+let activeProfile = 0;
+
+function renderProfiles() {
+  const el = document.getElementById('profile-select-ui');
+  el.innerHTML = PROFILES.map((p, i) => `
+    <div onclick="selectProfile(${i})" style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);border:1px solid ${i===activeProfile ? p.color : 'var(--border)'};background:${i===activeProfile ? 'rgba('+hexToRgb(p.color)+',0.08)' : 'var(--bg3)'};cursor:pointer;transition:all .15s">
+      <div style="width:8px;height:8px;border-radius:50%;background:${p.color};flex-shrink:0"></div>
+      <div>
+        <div style="font-size:13px;font-weight:${i===activeProfile?'600':'400'};color:${i===activeProfile?'var(--ink)':'var(--muted)'}">${p.name}</div>
+        <div style="font-size:10px;color:var(--muted)">голос: ${p.voice}</div>
+      </div>
+    </div>`).join('');
+  document.getElementById('profile-desc').textContent = PROFILES[activeProfile].desc;
+}
+
+function selectProfile(i) {
+  activeProfile = i;
+  renderProfiles();
+  addActivity(`Профиль переключён → ${PROFILES[i].name}`);
+}
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
+}
+
+// ── Mode toggle ────────────────────────────────────────────────────
+function setMode(btn, mode) {
+  document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const anxiety = mode === 'teen' ? 'medium' : 'low';
+  document.getElementById('adaptive-state').textContent = `Режим: age=${mode} · anxiety=${anxiety} · risk=low`;
+}
+
+// ── Session controls ───────────────────────────────────────────────
+function toggleSession(btn) {
+  const active = btn.textContent.includes('Завершить');
+  btn.textContent = active ? '▶ Начать диалог' : '⏹ Завершить диалог';
+  btn.style.background = active ? 'linear-gradient(135deg,var(--accent),var(--accent2))' : 'rgba(248,81,73,0.15)';
+  btn.style.color = active ? '#fff' : 'var(--danger)';
+  addActivity(active ? 'Сессия завершена' : 'Сессия запущена · WebRTC connecting...');
+}
+
+function toggleMute(btn) {
+  const muted = btn.textContent.includes('Отключить');
+  btn.textContent = muted ? '🔇 Включить микрофон' : '🎤 Отключить микрофон';
+  addActivity(muted ? 'Микрофон отключён' : 'Микрофон включён');
+}
+
+// ── Activity log ───────────────────────────────────────────────────
+const ACTIVITY_INIT = [
+  'SESSION_START · profile=lawvoice_mentor · age=teen',
+  'WEBRTC_CONNECTED · ice=completed · latency=48ms',
+  'USER_SPEECH · duration=3.2s · tokens=42',
+  'KNOWLEDGE_SEARCH · query="кибербуллинг школа" · hits=3',
+  'AGENT_RESPONSE · tokens=187 · audio=2.4s',
+  'USER_SPEECH · duration=5.1s · tokens=68',
+  'ADAPTIVE_SWITCH · anxiety=high → profile=lawvoice_safety',
+  'SAFETY_TRIGGER · reason=threat_detected · escalated=true',
+  'AGENT_RESPONSE · tokens=214 · audio=3.1s · mode=crisis',
+  'USER_SPEECH · duration=2.8s · tokens=34',
+  'KNOWLEDGE_SEARCH · query="112 экстренная помощь подросток" · hits=2',
+  'AGENT_RESPONSE · tokens=156 · audio=2.2s',
+  'USER_SPEECH · duration=1.9s · tokens=22',
+  'AGENT_RESPONSE · tokens=98 · audio=1.4s · checklist=true',
+  'ADAPTIVE_SWITCH · anxiety=low → profile=lawvoice_mentor',
+  'USER_SPEECH · duration=4.4s · tokens=57',
+  'KNOWLEDGE_SEARCH · query="заявление директору школы образец" · hits=4',
+  'AGENT_RESPONSE · tokens=231 · audio=3.3s',
+  'SESSION_END · duration=5m42s · total_tokens=1847 · rating=5',
+];
+
+function addActivity(msg) {
+  const log = document.getElementById('activity-log');
+  const now = new Date();
+  const t = now.toTimeString().slice(0,8);
+  const div = document.createElement('div');
+  div.className = 'log-entry';
+  div.innerHTML = `<span style="color:var(--accent2)">[${t}]</span> ${msg}`;
+  log.prepend(div);
+}
+
+function initActivityLog() {
+  const log = document.getElementById('activity-log');
+  const base = new Date(); base.setMinutes(base.getMinutes() - 5);
+  ACTIVITY_INIT.forEach((msg, i) => {
+    const t = new Date(base.getTime() + i * 35000).toTimeString().slice(0,8);
+    const div = document.createElement('div');
+    div.className = 'log-entry';
+    div.innerHTML = `<span style="color:var(--accent2)">[${t}]</span> ${msg}`;
+    log.appendChild(div);
+  });
+}
+
+// ── Conversation demo ──────────────────────────────────────────────
+// Три сценария — переключаются кнопками над диалогом
+const CONV_SCENARIOS = {
+  cyber: [
+    { role:'user',  text:'Привет. Меня в классном чате начали травить, скидывают мои фото с подписями. Что мне делать?' },
+    { role:'agent', text:'Слышу тебя. Это серьёзно, и ты правильно сделал, что решил разобраться. Давай по порядку — фото твои личные, или просто обычные? И кто это делает — одноклассники или кто-то ещё?' },
+    { role:'user',  text:'Одноклассники. Фото обычные, но подписи оскорбительные.' },
+    { role:'agent', text:'Понял. Это подпадает под статью 5.61 КоАП — оскорбление. Первый шаг — сделай скриншоты прямо сейчас, с датой и временем видно. Это твои доказательства. Потом можно обратиться к классному руководителю или администрации школы. Хочешь, разберём как именно это сформулировать?' },
+    { role:'user',  text:'Да, хочу. Боюсь что не поверят.' },
+    { role:'agent', text:'Именно поэтому скриншоты — это ключ. Скажи так: «Я хочу сообщить о систематическом оскорблении в классном чате. Вот доказательства с датами.» Коротко, по делу, без эмоций — так воспринимают серьёзнее. Если школа не реагирует — следующий шаг это комиссия по делам несовершеннолетних. Но давай сначала попробуем через школу.' },
+    { role:'user',  text:'А если классный руководитель сам на их стороне?' },
+    { role:'agent', text:'Тогда идёшь выше — к завучу или директору. Письменное заявление, два экземпляра: один сдаёшь, на втором просишь поставить штамп о принятии. Это уже официальный документ, который они не могут просто проигнорировать. Хочешь, набросаем текст прямо сейчас?' },
+    { role:'user',  text:'Да, давай.' },
+    { role:'agent', text:'Вот шаблон: «Директору школы №__ от ученика __ класса. Прошу принять меры в связи с систематическим оскорблением в мессенджере классного чата. Прилагаю скриншоты от [дата]. Прошу рассмотреть в течение 10 рабочих дней.» Дату, подпись — и готово. Это твой первый официальный шаг.' },
+  ],
+  shop: [
+    { role:'user',  text:'Купил наушники на маркетплейсе, пришли сломанные. Продавец говорит что это я сломал при доставке.' },
+    { role:'agent', text:'Классическая ситуация. Главный вопрос — ты снимал распаковку на видео? Это сейчас самое важное для доказательной базы.' },
+    { role:'user',  text:'Нет, не снимал. Не знал что надо.' },
+    { role:'agent', text:'Ничего страшного, это не конец. По закону о защите прав потребителей — статья 18 — ты имеешь право на возврат или замену товара ненадлежащего качества в течение 15 дней без объяснений. Продавец обязан принять претензию. Напиши ему письменно через чат маркетплейса — это создаёт официальную переписку.' },
+    { role:'user',  text:'Он уже отказал в чате.' },
+    { role:'agent', text:'Отлично — у тебя есть письменный отказ. Это твоё оружие. Следующий шаг: жалоба в службу поддержки маркетплейса с приложением переписки и фото товара. Большинство платформ встают на сторону покупателя при явном браке. Параллельно можно подать жалобу в Роспотребнадзор через их сайт — это бесплатно и занимает 10 минут.' },
+    { role:'user',  text:'Сколько это может занять времени?' },
+    { role:'agent', text:'Маркетплейс обычно отвечает за 3–7 дней. Роспотребнадзор — до 30 дней по закону. Но сам факт жалобы часто ускоряет продавца. Твой план на сегодня: сфотографируй дефект крупным планом, сохрани всю переписку, подай жалобу на платформе. Это займёт минут 20.' },
+  ],
+  school: [
+    { role:'user',  text:'Учитель поставил мне двойку за работу, которую я сдал вовремя. Говорит что не получал.' },
+    { role:'agent', text:'Понял ситуацию. Как ты сдавал — лично в руки, через электронный журнал, или как-то ещё?' },
+    { role:'user',  text:'Через электронную почту школы.' },
+    { role:'agent', text:'Это хорошо — у тебя есть доказательство отправки. Зайди в отправленные, найди письмо с датой и временем. Это подтверждает, что ты сдал вовремя. Скриншот этого письма — твой главный аргумент.' },
+    { role:'user',  text:'Скриншот есть. Что дальше?' },
+    { role:'agent', text:'Спокойно подойди к учителю и покажи скриншот — без обвинений, просто факт: «Вот письмо от [дата], прошу пересмотреть оценку». Большинство ситуаций решается на этом этапе. Если откажет — идёшь к завучу с тем же скриншотом. Оценка, выставленная без оснований, может быть оспорена через администрацию.' },
+    { role:'user',  text:'А если завуч тоже откажет?' },
+    { role:'agent', text:'Тогда письменное заявление на имя директора с приложением скриншота. По закону об образовании — статья 45 — ты имеешь право на независимую оценку знаний. Это уже серьёзный инструмент, и директора обычно не хотят доводить до этого. Но важно: всё делай спокойно и письменно — это твоя сила.' },
+  ],
+};
+let activeScenario = 'cyber';
+const CONV = CONV_SCENARIOS[activeScenario];
+
+function initConv() {
+  const log = document.getElementById('conv-log');
+  log.innerHTML = '';
+  const scenario = CONV_SCENARIOS[activeScenario];
+  scenario.forEach(m => {
+    const wrap = document.createElement('div');
+    wrap.className = `msg-wrap ${m.role}`;
+    wrap.innerHTML = `<div class="msg msg-${m.role}">${m.text}</div><div class="msg-meta">${m.role === 'user' ? 'Пользователь' : 'LawVoice · ' + PROFILES[activeProfile].name}</div>`;
+    log.appendChild(wrap);
+  });
+  // scroll to bottom
+  log.scrollTop = log.scrollHeight;
+}
+
+function switchScenario(key, btn) {
+  activeScenario = key;
+  document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  initConv();
+  addActivity(`Сценарий переключён → ${btn.textContent}`);
+}
+
+// ── Session logs table ─────────────────────────────────────────────
+const SESSIONS = [
+  { id:'sess_0347', time:'10:14', profile:'Наставник',  topic:'Кибербуллинг',            turns:12, tokens:1847, status:'safety' },
+  { id:'sess_0346', time:'10:02', profile:'Аналитик',   topic:'Права в школе',           turns:8,  tokens:1124, status:'ok' },
+  { id:'sess_0345', time:'09:51', profile:'Товарищ',    topic:'Онлайн-покупки',          turns:6,  tokens:892,  status:'ok' },
+  { id:'sess_0344', time:'09:38', profile:'Наставник',  topic:'Кибербуллинг',            turns:15, tokens:2341, status:'ok' },
+  { id:'sess_0343', time:'09:22', profile:'Кризис',     topic:'Угроза насилием',         turns:9,  tokens:1567, status:'safety' },
+  { id:'sess_0342', time:'09:10', profile:'Аналитик',   topic:'Возврат товара',          turns:5,  tokens:743,  status:'ok' },
+  { id:'sess_0341', time:'08:55', profile:'Товарищ',    topic:'Конфликт с учителем',     turns:11, tokens:1632, status:'ok' },
+  { id:'sess_0340', time:'08:41', profile:'Наставник',  topic:'Права потребителя',       turns:7,  tokens:1021, status:'error' },
+  { id:'sess_0339', time:'08:30', profile:'Аналитик',   topic:'Кибербуллинг',            turns:10, tokens:1489, status:'ok' },
+  { id:'sess_0338', time:'08:14', profile:'Кризис',     topic:'Шантаж',                  turns:8,  tokens:1203, status:'safety' },
+  { id:'sess_0337', time:'07:58', profile:'Наставник',  topic:'Права в школе',           turns:6,  tokens:887,  status:'ok' },
+  { id:'sess_0336', time:'07:44', profile:'Товарищ',    topic:'Конфликт с родителями',   turns:14, tokens:2108, status:'ok' },
+  { id:'sess_0335', time:'07:31', profile:'Аналитик',   topic:'Онлайн-покупки',          turns:5,  tokens:712,  status:'ok' },
+  { id:'sess_0334', time:'07:19', profile:'Кризис',     topic:'Вымогательство',          turns:11, tokens:1744, status:'safety' },
+  { id:'sess_0333', time:'07:05', profile:'Наставник',  topic:'Права потребителя',       turns:8,  tokens:1156, status:'ok' },
+  { id:'sess_0332', time:'06:52', profile:'Аналитик',   topic:'Кибербуллинг',            turns:9,  tokens:1398, status:'ok' },
+  { id:'sess_0331', time:'06:40', profile:'Товарищ',    topic:'Конфликт с учителем',     turns:7,  tokens:1043, status:'ok' },
+  { id:'sess_0330', time:'06:28', profile:'Наставник',  topic:'Права в школе',           turns:13, tokens:1921, status:'ok' },
+  { id:'sess_0329', time:'06:15', profile:'Кризис',     topic:'Угроза насилием',         turns:6,  tokens:934,  status:'safety' },
+  { id:'sess_0328', time:'06:01', profile:'Аналитик',   topic:'Возврат товара',          turns:4,  tokens:601,  status:'error' },
+];
+
+function statusPill(s) {
+  if (s === 'ok')     return '<span class="pill pill-green">✓ OK</span>';
+  if (s === 'safety') return '<span class="pill pill-warn">⚠ Safety</span>';
+  if (s === 'error')  return '<span class="pill pill-red">✕ Ошибка</span>';
+}
+
+let currentFilter = 'all';
+function filterLogs(f) { currentFilter = f; renderLogs(); }
+
+function renderLogs() {
+  const tbody = document.getElementById('logs-tbody');
+  const rows = SESSIONS.filter(s => currentFilter === 'all' || s.status === currentFilter);
+  tbody.innerHTML = rows.map(s => `
+    <tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:9px 10px;font-family:ui-monospace,monospace;color:var(--accent2)">${s.id}</td>
+      <td style="padding:9px 10px;color:var(--muted)">${s.time}</td>
+      <td style="padding:9px 10px">${s.profile}</td>
+      <td style="padding:9px 10px">${s.topic}</td>
+      <td style="padding:9px 10px;text-align:center">${s.turns}</td>
+      <td style="padding:9px 10px;font-variant-numeric:tabular-nums">${s.tokens.toLocaleString('ru')}</td>
+      <td style="padding:9px 10px">${statusPill(s.status)}</td>
+    </tr>`).join('');
+}
+
+// ── Audio canvas animation ─────────────────────────────────────────
+function animateAudio() {
+  const canvas = document.getElementById('audio-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  let t = 0;
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = '#1a9e6e';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let x = 0; x < W; x++) {
+      const y = H/2 + Math.sin((x/W)*8*Math.PI + t) * (H/3) * (0.4 + 0.6*Math.abs(Math.sin(t*0.7 + x*0.02)));
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    // second wave (output, blue)
+    ctx.strokeStyle = '#388bfd';
+    ctx.lineWidth = 1.5;
+    ctx.globalAlpha = 0.5;
+    ctx.beginPath();
+    for (let x = 0; x < W; x++) {
+      const y = H/2 + Math.sin((x/W)*6*Math.PI + t*1.3 + 1) * (H/4) * (0.3 + 0.5*Math.abs(Math.sin(t*0.5)));
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    t += 0.06;
+    requestAnimationFrame(draw);
+  }
+  draw();
+  // animate level bars
+  setInterval(() => {
+    document.getElementById('in-lvl').style.width  = (40 + Math.random()*50) + '%';
+    document.getElementById('out-lvl').style.width = (20 + Math.random()*40) + '%';
+  }, 150);
+}
+
+// ── Session timer ──────────────────────────────────────────────────
+function startTimer() {
+  let secs = 277; // start at 4:37
+  setInterval(() => {
+    secs++;
+    const m = String(Math.floor(secs/60)).padStart(2,'0');
+    const s = String(secs%60).padStart(2,'0');
+    const el = document.getElementById('sess-dur');
+    if (el) el.textContent = `${m}:${s}`;
+    // slowly increment tokens
+    const tok = document.getElementById('sess-tok');
+    if (tok) tok.textContent = (2841 + secs * 3).toLocaleString('ru');
+  }, 1000);
+}
+
+// ── Charts (Grafana page) ──────────────────────────────────────────
+let chartsInited = false;
+function initCharts() {
+  if (chartsInited) return;
+  chartsInited = true;
+
+  const gridColor = 'rgba(255,255,255,0.06)';
+  const tickColor = '#7d8590';
+  const hours = ['00','02','04','06','08','10','12','14','16','18','20','22'];
+
+  // Sessions over time
+  new Chart(document.getElementById('chart-sessions'), {
+    type: 'bar',
+    data: {
+      labels: hours,
+      datasets: [{ label:'Сессии', data:[1,0,0,0,2,8,14,18,22,19,12,7], backgroundColor:'rgba(26,158,110,0.6)', borderRadius:4 }]
+    },
+    options: { plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:tickColor},grid:{color:gridColor}}, y:{ticks:{color:tickColor},grid:{color:gridColor}} } }
+  });
+
+  // Tokens per minute (line)
+  const tokLabels = Array.from({length:20},(_,i)=>i+'м');
+  new Chart(document.getElementById('chart-tokens'), {
+    type: 'line',
+    data: {
+      labels: tokLabels,
+      datasets: [
+        { label:'Вход', data:[120,145,132,178,201,189,210,198,220,215,230,218,245,232,260,248,271,259,280,268], borderColor:'#388bfd', backgroundColor:'rgba(56,139,253,0.08)', tension:0.4, pointRadius:0, fill:true },
+        { label:'Выход', data:[40,52,48,61,70,65,74,69,78,75,82,77,88,83,94,89,100,95,108,103], borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,0.08)', tension:0.4, pointRadius:0, fill:true }
+      ]
+    },
+    options: { plugins:{legend:{labels:{color:tickColor}}}, scales:{ x:{ticks:{color:tickColor},grid:{color:gridColor}}, y:{ticks:{color:tickColor},grid:{color:gridColor}} } }
+  });
+
+  // Profile distribution (doughnut)
+  new Chart(document.getElementById('chart-profiles'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Наставник','Аналитик','Товарищ','Кризис'],
+      datasets: [{ data:[42,28,21,9], backgroundColor:['#22c55e','#388bfd','#d29922','#f85149'], borderWidth:0 }]
+    },
+    options: { plugins:{ legend:{ position:'bottom', labels:{ color:tickColor, padding:10, font:{size:11} } } }, cutout:'65%' }
+  });
+
+  // Topics (horizontal bar)
+  new Chart(document.getElementById('chart-topics'), {
+    type: 'bar',
+    data: {
+      labels: ['Кибербуллинг','Онлайн-покупки','Права в школе','Конфликты','Шантаж'],
+      datasets: [{ data:[38,24,19,12,7], backgroundColor:'rgba(56,139,253,0.6)', borderRadius:4 }]
+    },
+    options: { indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:tickColor},grid:{color:gridColor}}, y:{ticks:{color:tickColor},grid:{display:false}} } }
+  });
+
+  // Latency histogram
+  new Chart(document.getElementById('chart-latency'), {
+    type: 'bar',
+    data: {
+      labels: ['<50','50-100','100-200','200-400','400-800','>800'],
+      datasets: [{ label:'мс', data:[12,89,134,67,23,8], backgroundColor:'rgba(210,153,34,0.6)', borderRadius:4 }]
+    },
+    options: { plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:tickColor},grid:{color:gridColor}}, y:{ticks:{color:tickColor},grid:{color:gridColor}} } }
+  });
+}
+
+// ── Init ───────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  renderProfiles();
+  initConv();
+  initActivityLog();
+  renderLogs();
+  animateAudio();
+  startTimer();
+});
+</script>
+
+<!-- Chart.js CDN — единственная внешняя зависимость (только для графиков) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+</body>
+</html>

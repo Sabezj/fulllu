@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Traffic Incident CV Demo</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4efe8;
+      --panel: rgba(255, 255, 255, 0.86);
+      --panel-strong: rgba(255, 255, 255, 0.94);
+      --ink: #1f1a15;
+      --muted: #71685f;
+      --soft: #9b9288;
+      --line: rgba(31, 26, 21, 0.13);
+      --line-strong: rgba(31, 26, 21, 0.22);
+      --accent: #0b6c58;
+      --accent-2: #0e8b6c;
+      --danger: #a03c22;
+      --warning: #c17e17;
+      --shadow: 0 18px 46px rgba(49, 38, 28, 0.10);
+      --radius-lg: 30px;
+      --radius-md: 22px;
+      --radius-sm: 16px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(11, 108, 88, 0.12), transparent 34%),
+        radial-gradient(circle at top right, rgba(160, 60, 34, 0.10), transparent 28%),
+        linear-gradient(180deg, #fcf8f2 0%, var(--bg) 100%);
+      color: var(--ink);
+    }
+    .wrap { max-width: 1540px; margin: 0 auto; padding: 28px; }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+    .hero { padding: 26px 28px; margin-bottom: 18px; }
+    .eyebrow, .section-title, .field-label, .card .k, th, .mini-head {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      font-weight: 750;
+    }
+    .eyebrow { font-size: 13px; margin-bottom: 8px; }
+    .hero h1 { margin: 0 0 10px; font-size: clamp(34px, 4vw, 52px); line-height: 0.98; letter-spacing: -0.04em; }
+    .hero p { margin: 0; color: var(--muted); max-width: 980px; font-size: 15px; line-height: 1.35; }
+    .grid { display: grid; grid-template-columns: 390px minmax(0, 1fr); gap: 18px; align-items: start; }
+    .panel { min-width: 0; padding: 22px; }
+    .section-title { font-size: 13px; margin: 0 0 14px; }
+    .field-label { display: block; font-size: 11px; letter-spacing: 0.06em; text-transform: none; color: var(--muted); margin-bottom: 6px; font-weight: 650; }
+    input, select, button, textarea {
+      width: 100%; font: inherit; border-radius: 17px; border: 1px solid var(--line);
+      padding: 11px 13px; background: rgba(255, 255, 255, 0.84); color: var(--ink); outline: none;
+    }
+    button { cursor: pointer; font-weight: 750; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%); color: white; border: 0; box-shadow: 0 14px 24px rgba(11, 108, 88, 0.20); }
+    button.secondary { background: rgba(255, 255, 255, 0.74); color: var(--ink); border: 1px solid var(--line); box-shadow: none; }
+    button:disabled { cursor: not-allowed; opacity: 0.52; }
+    .stack > * + * { margin-top: 12px; }
+    .examples { display: flex; flex-wrap: wrap; gap: 10px; }
+    .example-btn { width: auto; padding: 10px 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.84); color: var(--ink); border: 1px solid var(--line); box-shadow: none; line-height: 1.1; }
+    .video-box { border-radius: 24px; overflow: hidden; background: #101010; border: 1px solid var(--line); margin-bottom: 16px; height: 240px; display: flex; align-items: center; justify-content: center; }
+    .video-placeholder { color: #555; font-size: 14px; }
+    .cards { display: flex; flex-wrap: wrap; justify-content: center; align-items: stretch; gap: 12px; max-width: 1090px; margin: 0 auto 16px; }
+    .card { flex: 1 1 240px; max-width: 260px; min-width: 180px; border: 1px solid var(--line); border-radius: var(--radius-md); padding: 16px; min-height: 112px; background: var(--panel-strong); display: flex; flex-direction: column; justify-content: center; }
+    .card .k { font-size: 12px; line-height: 1.12; }
+    .card .v { font-size: 29px; font-weight: 800; margin-top: 12px; line-height: 1.03; letter-spacing: -0.04em; }
+    .card .v.accent { color: var(--accent); }
+    .card .v.danger { color: var(--danger); }
+    .viz-grid { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 16px; align-items: stretch; }
+    .detail-grid { display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(440px, 1.05fr); gap: 14px; align-items: stretch; }
+    .detail-card { min-height: 280px; }
+    .viz-card { min-width: 0; border: 1px solid var(--line); border-radius: 24px; background: var(--panel-strong); padding: 16px; overflow: hidden; }
+    .chart-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .chart-toolbar .section-title { margin: 0; }
+    .small-action { width: auto; border-radius: 999px; padding: 8px 13px; font-size: 12px; letter-spacing: 0.04em; box-shadow: none; background: rgba(11, 108, 88, 0.10); color: var(--accent); border: 1px solid rgba(11, 108, 88, 0.22); }
+    .score-card { padding: 18px; }
+    .timeline-shell { min-height: 360px; }
+    .viz-card svg { display: block; width: 100%; height: auto; }
+    .timeline-shell svg { min-height: 340px; }
+    .severity-votes-shell { display: flex; align-items: center; min-height: 205px; }
+    .vote-list { width: 100%; display: grid; gap: 14px; }
+    .vote-row { display: grid; grid-template-columns: 96px minmax(120px, 1fr) 34px; gap: 14px; align-items: center; }
+    .vote-label { color: var(--muted); font-size: 18px; line-height: 1.1; }
+    .vote-track { height: 34px; border-radius: 999px; background: rgba(31, 26, 21, 0.06); overflow: hidden; }
+    .vote-bar { height: 100%; min-width: 34px; border-radius: 999px; background: var(--accent); }
+    .vote-bar.major { background: var(--danger); }
+    .vote-bar.moderate { background: var(--warning); }
+    .vote-count { font-size: 19px; font-weight: 750; font-variant-numeric: tabular-nums; }
+    .table-scroll { width: 100%; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: 12px; line-height: 1.15; }
+    .top-window-list { margin-top: 10px; border-top: 1px solid var(--line-strong); overflow: hidden; }
+    .top-window-row { display: grid; grid-template-columns: 0.86fr 1.05fr 0.9fr 0.95fr; gap: 14px; align-items: center; padding: 9px 4px; border-bottom: 1px solid var(--line); min-width: 0; }
+    .top-window-header { padding-top: 11px; padding-bottom: 8px; }
+    .mini-head { font-size: 11px; letter-spacing: 0.08em; line-height: 1.1; white-space: nowrap; }
+    .mini-cell { min-width: 0; font-size: 15px; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mono-ish { font-variant-numeric: tabular-nums; }
+    .severity-pill { display: inline-flex; align-items: center; justify-content: center; min-width: 58px; border-radius: 999px; padding: 5px 9px; font-size: 13px; font-weight: 750; background: rgba(11, 108, 88, 0.09); color: var(--accent); }
+    .severity-pill.major { background: rgba(160, 60, 34, 0.10); color: var(--danger); }
+    .severity-pill.moderate { background: rgba(193, 126, 23, 0.12); color: var(--warning); }
+    .links { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 18px; }
+    .links a { color: var(--accent); text-decoration: none; font-weight: 700; border-bottom: 1px solid rgba(11, 108, 88, 0.28); }
+    .muted { color: var(--muted); }
+    .status-done { color: var(--accent); font-weight: 600; font-size: 14px; }
+    .json { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; background: rgba(31, 26, 21, 0.06); border-radius: 18px; padding: 16px; overflow: auto; max-height: 260px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">Demo interface</div>
+      <h1>Upload a video for assessment and auto-annotation</h1>
+      <p>The interface uses the project's saved models: it first scores accident probability across windows, then predicts severity for positive windows. The output includes a summary, window-level predictions, annotation segments, and an HTML/JSON bundle.</p>
+    </section>
+
+    <section class="grid">
+      <!-- LEFT PANEL -->
+      <section class="panel stack">
+        <div>
+          <div class="section-title">Configuration</div>
+          <label class="field-label">Accident model directory</label>
+          <input value="models/hybrid" readonly />
+        </div>
+        <div>
+          <label class="field-label">Severity model directory</label>
+          <input value="models/severity" readonly />
+        </div>
+        <div>
+          <label class="field-label">Device</label>
+          <select><option>cuda</option><option>cpu</option></select>
+        </div>
+        <div>
+          <label class="field-label">Accident threshold</label>
+          <input type="number" value="0.5" />
+        </div>
+        <div>
+          <label class="field-label">Window size, frames</label>
+          <input type="number" placeholder="auto" />
+        </div>
+        <div>
+          <label class="field-label">Window step, frames</label>
+          <input type="number" placeholder="auto" />
+        </div>
+        <div>
+          <label class="field-label">Limit the number of windows</label>
+          <input type="number" placeholder="no limit" />
+        </div>
+        <div>
+          <label class="field-label">Video</label>
+          <input type="file" accept="video/*" />
+        </div>
+        <button type="button">Run assessment</button>
+        <button class="secondary" type="button">Clear result</button>
+        <div>
+          <div class="section-title">Quick examples</div>
+          <div class="examples">
+            <button class="example-btn" type="button">Accident: major severity (defense reference)</button>
+            <button class="example-btn" type="button">Accident: moderate severity (reference 1)</button>
+            <button class="example-btn" type="button">Accident: moderate severity (reference 2)</button>
+            <button class="example-btn" type="button">Accident: moderate severity (reference 3)</button>
+            <button class="example-btn" type="button">Accident: minor severity (reference 1)</button>
+            <button class="example-btn" type="button">Accident: minor severity (reference 2)</button>
+            <button class="example-btn" type="button">No accident: AI City cam_14</button>
+            <button class="example-btn" type="button">Hard negative: AI City cam_15</button>
+            <button class="example-btn" type="button">Hard negative: AI City cam_8</button>
+            <button class="example-btn" type="button">Hard negative: AI City cam_13</button>
+          </div>
+        </div>
+        <div class="status-done">Done. &nbsp;accident_major_defense_reference.mp4</div>
+      </section>
+
+      <!-- RIGHT PANEL -->
+      <section class="panel">
+        <div class="video-box">
+          <div class="video-placeholder">▶ accident_major_defense_reference.mp4 &nbsp;·&nbsp; 12.0 s &nbsp;·&nbsp; 8 fps &nbsp;·&nbsp; 96 frames</div>
+        </div>
+
+        <!-- SUMMARY CARDS -->
+        <div class="cards">
+          <div class="card"><div class="k">Overall accident label</div><div class="v accent">accident</div></div>
+          <div class="card"><div class="k">Max score</div><div class="v">0.6317</div></div>
+          <div class="card"><div class="k">Positive windows</div><div class="v">5</div></div>
+          <div class="card"><div class="k">Dominant severity</div><div class="v danger">major</div></div>
+          <div class="card"><div class="k">Mean score</div><div class="v">0.5919</div></div>
+          <div class="card"><div class="k">Median score</div><div class="v">0.5865</div></div>
+          <div class="card"><div class="k">Segments</div><div class="v">1</div></div>
+          <div class="card"><div class="k">First positive, sec</div><div class="v">0.0000</div></div>
+          <div class="card"><div class="k">Coverage, sec</div><div class="v">12.0000</div></div>
+          <div class="card"><div class="k">Duration, sec</div><div class="v">12.0000</div></div>
+          <div class="card"><div class="k">FPS</div><div class="v">8.00</div></div>
+        </div>
+
+        <!-- TIMELINE -->
+        <div class="viz-grid">
+          <div class="viz-card score-card">
+            <div class="chart-toolbar">
+              <div class="section-title">Score timeline</div>
+              <button class="small-action" type="button">Expand chart</button>
+            </div>
+            <div class="timeline-shell" id="timelineViz"></div>
+          </div>
+
+          <div class="detail-grid">
+            <!-- SEVERITY VOTES -->
+            <div class="viz-card detail-card">
+              <div class="section-title">Severity votes</div>
+              <div class="severity-votes-shell">
+                <div class="vote-list">
+                  <div class="vote-row">
+                    <div class="vote-label">major</div>
+                    <div class="vote-track"><div class="vote-bar major" style="width:100%"></div></div>
+                    <div class="vote-count">4</div>
+                  </div>
+                  <div class="vote-row">
+                    <div class="vote-label">minor</div>
+                    <div class="vote-track"><div class="vote-bar" style="width:25%"></div></div>
+                    <div class="vote-count">1</div>
+                  </div>
+                  <div class="vote-row">
+                    <div class="vote-label">moderate</div>
+                    <div class="vote-track"><div class="vote-bar moderate" style="width:0%"></div></div>
+                    <div class="vote-count">0</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TOP WINDOWS -->
+            <div class="viz-card detail-card">
+              <div class="section-title">Top windows</div>
+              <div class="top-window-list">
+                <div class="top-window-row top-window-header">
+                  <div class="mini-head">Window</div>
+                  <div class="mini-head">Time, sec</div>
+                  <div class="mini-head">Score</div>
+                  <div class="mini-head">Severity</div>
+                </div>
+                <div class="top-window-row">
+                  <div class="mini-cell mono-ish">0000</div>
+                  <div class="mini-cell mono-ish">0.0–4.0</div>
+                  <div class="mini-cell mono-ish">0.632</div>
+                  <div class="mini-cell"><span class="severity-pill major">major</span></div>
+                </div>
+                <div class="top-window-row">
+                  <div class="mini-cell mono-ish">0001</div>
+                  <div class="mini-cell mono-ish">2.0–6.0</div>
+                  <div class="mini-cell mono-ish">0.623</div>
+                  <div class="mini-cell"><span class="severity-pill major">major</span></div>
+                </div>
+                <div class="top-window-row">
+                  <div class="mini-cell mono-ish">0002</div>
+                  <div class="mini-cell mono-ish">4.0–8.0</div>
+                  <div class="mini-cell mono-ish">0.587</div>
+                  <div class="mini-cell"><span class="severity-pill major">major</span></div>
+                </div>
+                <div class="top-window-row">
+                  <div class="mini-cell mono-ish">0003</div>
+                  <div class="mini-cell mono-ish">6.0–10.0</div>
+                  <div class="mini-cell mono-ish">0.560</div>
+                  <div class="mini-cell"><span class="severity-pill major">major</span></div>
+                </div>
+                <div class="top-window-row">
+                  <div class="mini-cell mono-ish">0004</div>
+                  <div class="mini-cell mono-ish">8.0–12.0</div>
+                  <div class="mini-cell mono-ish">0.558</div>
+                  <div class="mini-cell"><span class="severity-pill">minor</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ARTIFACT LINKS -->
+        <div class="links">
+          <a href="#">HTML report</a>
+          <a href="#">assessment.json</a>
+          <a href="#">annotations.jsonl</a>
+        </div>
+
+        <!-- SEGMENTS TABLE -->
+        <div class="section-title">Annotation segments</div>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Segment</th><th>Start</th><th>End</th><th>Severity</th><th>Max score</th><th>Windows</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>segment_0001</td><td>0.0000</td><td>12.0000</td>
+                <td><span class="severity-pill major">major</span></td>
+                <td>0.6317</td><td>5</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- WINDOWS TABLE -->
+        <div class="section-title" style="margin-top:18px;">Window predictions</div>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Window</th><th>Start</th><th>End</th><th>Score</th><th>Accident</th><th>Severity</th></tr></thead>
+            <tbody>
+              <tr><td>demo_accident_0000</td><td>0.0000</td><td>4.0000</td><td>0.6317</td><td>accident</td><td><span class="severity-pill major">major</span></td></tr>
+              <tr><td>demo_accident_0001</td><td>2.0000</td><td>6.0000</td><td>0.6234</td><td>accident</td><td><span class="severity-pill major">major</span></td></tr>
+              <tr><td>demo_accident_0002</td><td>4.0000</td><td>8.0000</td><td>0.5865</td><td>accident</td><td><span class="severity-pill major">major</span></td></tr>
+              <tr><td>demo_accident_0003</td><td>6.0000</td><td>10.0000</td><td>0.5598</td><td>accident</td><td><span class="severity-pill major">major</span></td></tr>
+              <tr><td>demo_accident_0004</td><td>8.0000</td><td>12.0000</td><td>0.5582</td><td>accident</td><td><span class="severity-pill">minor</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- RAW JSON -->
+        <div class="section-title" style="margin-top:18px;">Raw JSON</div>
+        <div class="json">{
+  "run_id": "a3f8c1d2e4b0",
+  "result": {
+    "summary": {
+      "overall_accident_label": "accident",
+      "dominant_severity_label": "major",
+      "max_accident_score": 0.631715,
+      "mean_accident_score": 0.591932,
+      "positive_window_count": 5,
+      "segment_count": 1,
+      "duration_sec": 12.0,
+      "fps": 8.0
+    }
+  }
+}</div>
+      </section>
+    </section>
+  </div>
+
+  <script>
+    // Render SVG timeline with real model data
+    const windows = [
+      { start_sec: 0.0, end_sec: 4.0, accident_score: 0.631715, severity_label: "major" },
+      { start_sec: 2.0, end_sec: 6.0, accident_score: 0.623431, severity_label: "major" },
+      { start_sec: 4.0, end_sec: 8.0, accident_score: 0.586521, severity_label: "major" },
+      { start_sec: 6.0, end_sec: 10.0, accident_score: 0.559786, severity_label: "major" },
+      { start_sec: 8.0, end_sec: 12.0, accident_score: 0.558208, severity_label: "minor" },
+    ];
+    const segments = [{ start_sec: 0.0, end_sec: 12.0, severity_label: "major" }];
+    const threshold = 0.5;
+    const duration = 12.0;
+
+    const width = 1320, height = 430;
+    const chartLeft = 82, chartTop = 34;
+    const chartWidth = width - 140, chartHeight = 270;
+    const scoreBaseY = chartTop + chartHeight;
+
+    const xPos = sec => chartLeft + (sec / duration) * chartWidth;
+    const yPos = score => scoreBaseY - Math.max(0, Math.min(score, 1)) * chartHeight;
+
+    let grid = [], labels = [];
+    for (let tick = 0; tick <= 5; tick++) {
+      const ratio = tick / 5;
+      const y = chartTop + chartHeight * ratio;
+      const value = (1 - ratio).toFixed(1);
+      grid.push(`<line x1="${chartLeft}" y1="${y}" x2="${chartLeft + chartWidth}" y2="${y}" stroke="rgba(31,26,21,0.10)" stroke-width="1"/>`);
+      labels.push(`<text x="${chartLeft - 12}" y="${y + 4}" text-anchor="end" font-size="11" fill="#6f665c">${value}</text>`);
+    }
+    for (let tick = 0; tick <= 6; tick++) {
+      const sec = duration * tick / 6;
+      const x = xPos(sec);
+      grid.push(`<line x1="${x}" y1="${chartTop}" x2="${x}" y2="${scoreBaseY}" stroke="rgba(31,26,21,0.08)" stroke-width="1"/>`);
+      labels.push(`<text x="${x}" y="${scoreBaseY + 18}" text-anchor="middle" font-size="11" fill="#6f665c">${sec.toFixed(1)}s</text>`);
+    }
+
+    const linePoints = [], areaPoints = [`${chartLeft},${scoreBaseY}`], circles = [];
+    windows.forEach(item => {
+      const mid = (item.start_sec + item.end_sec) / 2;
+      const x = xPos(mid), y = yPos(item.accident_score);
+      const fill = item.accident_score >= threshold ? "#a03c22" : "#0d6b55";
+      linePoints.push(`${x.toFixed(2)},${y.toFixed(2)}`);
+      areaPoints.push(`${x.toFixed(2)},${y.toFixed(2)}`);
+      circles.push(`<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="5" fill="${fill}" stroke="white" stroke-width="2"/>`);
+    });
+    areaPoints.push(`${chartLeft + chartWidth},${scoreBaseY}`);
+
+    const bandY = scoreBaseY + 44;
+    const bands = segments.map(seg => {
+      const startX = xPos(seg.start_sec), endX = xPos(seg.end_sec);
+      const bw = Math.max(endX - startX, 4);
+      const color = seg.severity_label === "major" ? "#a03c22" : seg.severity_label === "moderate" ? "#c17e17" : "#0d6b55";
+      return `<rect x="${startX.toFixed(2)}" y="${bandY.toFixed(2)}" width="${bw.toFixed(2)}" height="16" rx="8" fill="${color}" fill-opacity="0.92"/>
+              <text x="${(startX + bw/2).toFixed(2)}" y="${(bandY+12).toFixed(2)}" text-anchor="middle" font-size="10" fill="white">${seg.severity_label}</text>`;
+    }).join("");
+
+    const thresholdY = yPos(threshold);
+
+    document.getElementById("timelineViz").innerHTML = `
+      <svg viewBox="0 0 1320 430" role="img" aria-label="Score timeline">
+        <defs>
+          <linearGradient id="sg" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#0d6b55" stop-opacity="0.34"/>
+            <stop offset="100%" stop-color="#0d6b55" stop-opacity="0.03"/>
+          </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="${width}" height="${height}" rx="24" fill="rgba(255,255,255,0.72)"/>
+        ${grid.join("")}
+        ${labels.join("")}
+        <line x1="${chartLeft}" y1="${thresholdY.toFixed(2)}" x2="${chartLeft+chartWidth}" y2="${thresholdY.toFixed(2)}" stroke="#a03c22" stroke-width="2" stroke-dasharray="6 6"/>
+        <text x="${chartLeft+chartWidth-4}" y="${(thresholdY-8).toFixed(2)}" text-anchor="end" font-size="11" fill="#a03c22">threshold 0.50</text>
+        <polygon points="${areaPoints.join(" ")}" fill="url(#sg)"/>
+        <polyline fill="none" stroke="#0d6b55" stroke-width="3" points="${linePoints.join(" ")}"/>
+        ${circles.join("")}
+        ${bands}
+        <text x="${chartLeft}" y="${(bandY+42).toFixed(2)}" font-size="12" fill="#6f665c">Annotation segments</text>
+      </svg>`;
+  </script>
+</body>
+</html>
