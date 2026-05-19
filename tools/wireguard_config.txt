@@ -1,0 +1,12 @@
+VPS WireGuard Configuration
+============================
+VPS IP: 89.125.92.10
+VPS Public Key: 
+VPS WireGuard IP: 10.0.0.1
+Listen Port: 51820
+
+Keenetic Configuration:
+- Public Key: e6ejlpvpSJxWv/EPFo0dKR3dNl2oZUhpBKjScQJJclg=
+- WireGuard IP: 10.0.0.2
+- Endpoint: 89.125.92.10:51820
+- Allowed IPs: 0.0.0.0/0
