@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LawVoice: Администратор</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="admin-page">
+  <div class="container">
+    <header class="header">
+      <div class="brand-badge">LawVoice Admin</div>
+      <nav class="nav-links">
+        <a href="/">Диалог</a>
+        <a href="/profiles.html">Профили</a>
+      </nav>
+      <h1 class="title">Панель администратора</h1>
+      <p class="subtitle">Логи, мониторинг и служебное состояние LawVoice</p>
+      <div class="admin-session-bar">
+        <div class="admin-session-summary">
+          <span id="admin-role-badge" class="status-badge">Пользователь</span>
+          <p id="admin-auth-status" class="subtitle">Требуется вход администратора.</p>
+          <p id="admin-login-error" class="auth-note" hidden></p>
+        </div>
+        <form id="admin-login-form" class="admin-login-form">
+          <input id="admin-login-key" type="password" placeholder="ADMIN_API_KEY" autocomplete="current-password">
+          <button id="admin-login-btn" type="submit" class="btn btn-secondary">Войти</button>
+          <button id="admin-logout-btn" type="button" class="btn btn-outline" hidden>Выйти</button>
+        </form>
+      </div>
+    </header>
+
+    <main class="main admin-main">
+      <section class="debug-panel" data-admin-guest>
+        <h2 class="section-title">Доступ закрыт</h2>
+        <p class="knowledge-status">Административные логи доступны только после авторизации.</p>
+      </section>
+
+      <section class="admin-grid" data-admin-only>
+        <div class="debug-panel admin-dashboard-panel">
+          <div class="admin-log-header">
+            <div>
+              <h2 class="section-title">Сессионное наблюдение</h2>
+              <div id="session-dashboard-status" class="knowledge-status">Ожидание данных сессий.</div>
+            </div>
+            <button id="refresh-sessions" class="btn btn-secondary" type="button">Обновить</button>
+          </div>
+
+          <div class="session-kpi-grid">
+            <div class="session-kpi-card">
+              <span class="session-kpi-label">Сессий</span>
+              <strong id="dashboard-total-sessions" class="session-kpi-value">0</strong>
+              <span class="session-kpi-meta">Всего записей</span>
+            </div>
+            <div class="session-kpi-card">
+              <span class="session-kpi-label">24 часа</span>
+              <strong id="dashboard-recent-sessions" class="session-kpi-value">0</strong>
+              <span class="session-kpi-meta">Новых сессий</span>
+            </div>
+            <div class="session-kpi-card">
+              <span class="session-kpi-label">Средняя длительность</span>
+              <strong id="dashboard-average-duration" class="session-kpi-value">0 сек</strong>
+              <span class="session-kpi-meta">По всем записям</span>
+            </div>
+            <div class="session-kpi-card">
+              <span class="session-kpi-label">Токены</span>
+              <strong id="dashboard-total-tokens" class="session-kpi-value">0</strong>
+              <span class="session-kpi-meta">Сумма по сессиям</span>
+            </div>
+            <div class="session-kpi-card">
+              <span class="session-kpi-label">Оценка стоимости</span>
+              <strong id="dashboard-total-cost" class="session-kpi-value">$0.00</strong>
+              <span class="session-kpi-meta">Estimated cost</span>
+            </div>
+            <div class="session-kpi-card">
+              <span class="session-kpi-label">Риск</span>
+              <strong id="dashboard-high-risk" class="session-kpi-value">0</strong>
+              <span class="session-kpi-meta">High / urgent</span>
+            </div>
+          </div>
+
+          <div class="session-chart-grid">
+            <div class="session-chart-card">
+              <h3>Последние сессии</h3>
+              <canvas id="sessions-trend-chart" height="160"></canvas>
+            </div>
+            <div class="session-chart-card">
+              <h3>Токены и длительность</h3>
+              <canvas id="sessions-load-chart" height="160"></canvas>
+            </div>
+          </div>
+
+          <div class="session-breakdown-grid">
+            <div class="session-breakdown-card">
+              <h3>Распределение риска</h3>
+              <div id="risk-breakdown" class="risk-breakdown"></div>
+            </div>
+            <div class="session-breakdown-card">
+              <h3>Профили</h3>
+              <div id="profile-breakdown" class="profile-breakdown"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="debug-panel">
+          <h2 class="section-title">Observability</h2>
+          <div class="form-actions admin-link-actions">
+            <a id="grafana-link" class="btn btn-outline" href="http://127.0.0.1:3001" target="_blank" rel="noreferrer">Grafana</a>
+            <a id="prometheus-link" class="btn btn-outline" href="http://127.0.0.1:9090" target="_blank" rel="noreferrer">Prometheus</a>
+            <a id="metrics-link" class="btn btn-outline" href="/metrics" target="_blank" rel="noreferrer">Metrics</a>
+            <a id="proteus-link" class="btn btn-outline" href="#" target="_blank" rel="noreferrer" hidden>Proteus</a>
+          </div>
+          <div id="observability-status" class="knowledge-status">Нет активной админ-сессии.</div>
+        </div>
+
+        <div class="debug-panel">
+          <h2 class="section-title">Источники логов</h2>
+          <div id="log-source-list" class="log-source-list"></div>
+        </div>
+
+        <div class="debug-panel admin-log-panel">
+          <div class="admin-log-header">
+            <h2 class="section-title">Просмотр логов</h2>
+            <div class="admin-log-controls">
+              <select id="log-source-select" class="profile-select"></select>
+              <select id="log-line-limit" class="profile-select">
+                <option value="100">100 строк</option>
+                <option value="200" selected>200 строк</option>
+                <option value="500">500 строк</option>
+                <option value="1000">1000 строк</option>
+              </select>
+              <label class="search-option admin-auto-refresh">
+                <input type="checkbox" id="log-auto-refresh">
+                Авто
+              </label>
+              <button id="refresh-logs" class="btn btn-secondary" type="button">Обновить</button>
+            </div>
+          </div>
+          <div id="log-status" class="knowledge-status">Логи не загружены.</div>
+          <pre id="admin-log-output" class="debug-text admin-log-output">Ожидание данных...</pre>
+        </div>
+
+        <div class="debug-panel">
+          <div class="admin-log-header">
+            <h2 class="section-title">Сессии диалогов</h2>
+            <span class="session-inline-note">Выберите запись для детального разбора.</span>
+          </div>
+          <div id="session-status" class="knowledge-status">Сессии не загружены.</div>
+          <div id="session-list" class="session-list"></div>
+        </div>
+
+        <div class="debug-panel session-detail-panel">
+          <h2 class="section-title">Карточка сессии</h2>
+          <div id="session-detail" class="session-detail">
+            <p class="knowledge-status">Выберите сессию слева.</p>
+          </div>
+        </div>
+
+        <div class="debug-panel">
+          <h2 class="section-title">Файлы источника</h2>
+          <div class="knowledge-table-wrap">
+            <table class="knowledge-table">
+              <thead>
+                <tr>
+                  <th>Файл</th>
+                  <th>Размер</th>
+                  <th>Изменён</th>
+                </tr>
+              </thead>
+              <tbody id="log-files-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>LawVoice MVP • Администрирование и observability</p>
+    </footer>
+  </div>
+
+  <script src="chart.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

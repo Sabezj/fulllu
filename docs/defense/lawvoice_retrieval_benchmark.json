@@ -1,0 +1,239 @@
+{
+  "benchmark_type": "offline_proxy_retrieval_benchmark",
+  "environment": {
+    "retriever": "character_ngram_tfidf_proxy",
+    "note": "Uses the shipped internal corpus, the same chunking policy as the prototype, and a Russian-friendly lexical proxy because the repository snapshot does not ship a reproducible PostgreSQL knowledge dump."
+  },
+  "corpus": {
+    "documents": 6,
+    "chunks": 9
+  },
+  "metrics": {
+    "queries": 10,
+    "hit_at_1": 0.9,
+    "hit_at_3": 0.9,
+    "mrr_at_3": 0.9,
+    "ndcg_at_3": 0.8839,
+    "median_rank_of_first_relevant": 1,
+    "p95_rank_of_first_relevant": 1
+  },
+  "details": [
+    {
+      "query": "Меня задержала полиция, я в отделе и боюсь ошибиться в разговоре",
+      "gold_docs": [
+        "general_prompt",
+        "safety_profile"
+      ],
+      "top_docs": [
+        "analyst_profile",
+        "architecture_doc",
+        "mentor_profile"
+      ],
+      "top_chunk_ids": [
+        "analyst_profile_0",
+        "architecture_doc_0",
+        "mentor_profile_0"
+      ],
+      "top_scores": [
+        0.091,
+        0.0863,
+        0.0716
+      ]
+    },
+    {
+      "query": "Мне угрожают слить интимные фото и шантажируют",
+      "gold_docs": [
+        "general_prompt",
+        "safety_profile"
+      ],
+      "top_docs": [
+        "safety_profile",
+        "general_prompt",
+        "architecture_doc"
+      ],
+      "top_chunk_ids": [
+        "safety_profile_0",
+        "general_prompt_0",
+        "architecture_doc_1"
+      ],
+      "top_scores": [
+        0.1091,
+        0.1001,
+        0.0573
+      ]
+    },
+    {
+      "query": "Меня травят в школьном чате и оскорбляют одноклассники",
+      "gold_docs": [
+        "general_prompt",
+        "mentor_profile"
+      ],
+      "top_docs": [
+        "general_prompt",
+        "safety_profile",
+        "architecture_doc"
+      ],
+      "top_chunk_ids": [
+        "general_prompt_0",
+        "safety_profile_0",
+        "architecture_doc_1"
+      ],
+      "top_scores": [
+        0.074,
+        0.0589,
+        0.0471
+      ]
+    },
+    {
+      "query": "Учитель забрал телефон и угрожает директором, что мне делать в школе",
+      "gold_docs": [
+        "general_prompt",
+        "mentor_profile"
+      ],
+      "top_docs": [
+        "mentor_profile",
+        "safety_profile",
+        "general_prompt"
+      ],
+      "top_chunk_ids": [
+        "mentor_profile_0",
+        "safety_profile_0",
+        "general_prompt_0"
+      ],
+      "top_scores": [
+        0.1476,
+        0.1079,
+        0.0951
+      ]
+    },
+    {
+      "query": "Заказ на маркетплейсе пришёл бракованный, как оформить возврат",
+      "gold_docs": [
+        "general_prompt",
+        "mentor_profile"
+      ],
+      "top_docs": [
+        "general_prompt",
+        "safety_profile",
+        "mentor_profile"
+      ],
+      "top_chunk_ids": [
+        "general_prompt_0",
+        "safety_profile_0",
+        "mentor_profile_0"
+      ],
+      "top_scores": [
+        0.1179,
+        0.0918,
+        0.0902
+      ]
+    },
+    {
+      "query": "Помоги спокойно объяснить подростку права и риски простым языком",
+      "gold_docs": [
+        "general_prompt",
+        "mentor_profile"
+      ],
+      "top_docs": [
+        "mentor_profile",
+        "general_prompt",
+        "analyst_profile"
+      ],
+      "top_chunk_ids": [
+        "mentor_profile_0",
+        "general_prompt_0",
+        "analyst_profile_0"
+      ],
+      "top_scores": [
+        0.2222,
+        0.1828,
+        0.1715
+      ]
+    },
+    {
+      "query": "Нужен стиль, где факты отделяются от эмоций и даются варианты действий",
+      "gold_docs": [
+        "analyst_profile"
+      ],
+      "top_docs": [
+        "analyst_profile",
+        "mentor_profile",
+        "general_prompt"
+      ],
+      "top_chunk_ids": [
+        "analyst_profile_0",
+        "mentor_profile_0",
+        "general_prompt_0"
+      ],
+      "top_scores": [
+        0.1494,
+        0.1153,
+        0.0931
+      ]
+    },
+    {
+      "query": "Как в системе создаётся WebRTC-сессия и временный токен",
+      "gold_docs": [
+        "architecture_doc"
+      ],
+      "top_docs": [
+        "architecture_doc",
+        "mentor_profile",
+        "tts_doc"
+      ],
+      "top_chunk_ids": [
+        "architecture_doc_0",
+        "mentor_profile_0",
+        "tts_doc_0"
+      ],
+      "top_scores": [
+        0.1029,
+        0.0783,
+        0.0751
+      ]
+    },
+    {
+      "query": "Какие сервисы синтеза речи поддерживаются и как выбирается голос",
+      "gold_docs": [
+        "tts_doc"
+      ],
+      "top_docs": [
+        "tts_doc",
+        "architecture_doc",
+        "architecture_doc"
+      ],
+      "top_chunk_ids": [
+        "tts_doc_0",
+        "architecture_doc_0",
+        "architecture_doc_1"
+      ],
+      "top_scores": [
+        0.2308,
+        0.1332,
+        0.1151
+      ]
+    },
+    {
+      "query": "Когда нужно сразу звать взрослого и звонить 112",
+      "gold_docs": [
+        "general_prompt",
+        "safety_profile"
+      ],
+      "top_docs": [
+        "safety_profile",
+        "general_prompt",
+        "mentor_profile"
+      ],
+      "top_chunk_ids": [
+        "safety_profile_0",
+        "general_prompt_1",
+        "mentor_profile_0"
+      ],
+      "top_scores": [
+        0.1797,
+        0.0988,
+        0.0982
+      ]
+    }
+  ]
+}

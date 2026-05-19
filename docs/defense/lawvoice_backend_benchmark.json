@@ -1,0 +1,53 @@
+{
+  "benchmark_type": "synthetic_in_process_mocked_dependencies",
+  "environment": {
+    "runtime": "node + supertest + mocked openai/postgres/redis",
+    "note": "Measures backend route overhead and control flow, not external provider latency."
+  },
+  "results": [
+    {
+      "route": "GET /api/profiles",
+      "requests": 20,
+      "concurrency": 2,
+      "throughput_rps": 131.21,
+      "p50_ms": 14.54,
+      "p95_ms": 17.37,
+      "p99_ms": 18.2,
+      "avg_ms": 15.05,
+      "max_ms": 18.2
+    },
+    {
+      "route": "POST /api/classify-intent (lawvoice rule path)",
+      "requests": 10,
+      "concurrency": 2,
+      "throughput_rps": 135.82,
+      "p50_ms": 14.33,
+      "p95_ms": 16.74,
+      "p99_ms": 16.74,
+      "avg_ms": 14.11,
+      "max_ms": 16.74
+    },
+    {
+      "route": "POST /api/knowledge/search",
+      "requests": 10,
+      "concurrency": 2,
+      "throughput_rps": 156.81,
+      "p50_ms": 12.32,
+      "p95_ms": 16.37,
+      "p99_ms": 16.37,
+      "avg_ms": 12.5,
+      "max_ms": 16.37
+    },
+    {
+      "route": "POST /api/action-plan",
+      "requests": 10,
+      "concurrency": 2,
+      "throughput_rps": 160.68,
+      "p50_ms": 12.35,
+      "p95_ms": 13.66,
+      "p99_ms": 13.66,
+      "avg_ms": 12.21,
+      "max_ms": 13.66
+    }
+  ]
+}

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LawVoice: Правовой диалог</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="brand-badge">LawVoice MVP</div>
+            <nav class="nav-links">
+                <a href="/admin">Администратор</a>
+                <a href="/profiles.html" data-admin-only>Профили</a>
+            </nav>
+            <h1 class="title">LawVoice: Правовой диалог</h1>
+            <p class="subtitle">Голосовой симулятор правовых ситуаций для подростков</p>
+            <p class="strapline">Кибербуллинг • Покупки онлайн • Права в школе</p>
+        </header>
+
+        <main class="main">
+            <!-- Панель профилей агента -->
+            <div class="profile-panel">
+                <h2 class="section-title">Персона и стиль диалога</h2>
+                <div class="profile-controls">
+                    <select id="profile-select" class="profile-select">
+                    </select>
+                    <div id="active-profile" class="active-profile">Текущий персонаж: не выбран</div>
+                    <div class="adaptive-controls">
+                        <label for="age-mode">Возрастной режим</label>
+                        <select id="age-mode" class="profile-select">
+                            <option value="teen" selected>Подросток</option>
+                            <option value="adult">18+</option>
+                        </select>
+                        <div id="adaptive-mode-state" class="adaptive-state">Режим: age=teen, anxiety=medium, risk=low</div>
+                    </div>
+                    <details id="profile-details" data-admin-only>
+                        <summary>Редактировать профиль</summary>
+                        <form id="profile-form" class="profile-form">
+                            <label>Имя<input type="text" id="profile-name"></label>
+                            <label>Голос<input type="text" id="profile-voice"></label>
+                            <label>Настроение<input type="text" id="profile-mood"></label>
+                            <label>Правила<textarea id="profile-rules" rows="2"></textarea></label>
+                            <label>Инструкции<textarea id="profile-instructions" rows="4"></textarea></label>
+                        </form>
+                    </details>
+                    <div class="profile-buttons" data-admin-only>
+                        <button id="save-profile" class="btn btn-secondary">Сохранить профиль</button>
+                        <button id="load-profile" class="btn btn-outline">Загрузить профиль</button>
+                        <input type="file" id="profile-file" class="hidden-file-input" accept="application/json">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Панель инструкций ИИ -->
+            <div class="instructions-panel" data-admin-only>
+                <h2 class="section-title">Базовый промпт LawVoice</h2>
+                <div class="instructions-content">
+                    <textarea
+                        id="ai-instructions"
+                        class="instructions-textarea"
+                        placeholder="Введите базовые инструкции для персонажа LawVoice"
+                        rows="8">Ты — LawVoice, голосовой тренер правовой грамотности для подростков.
+Цель: помогать разбирать жизненные конфликты (кибербуллинг, онлайн-покупки, права в школе) и находить безопасные правомерные решения.
+
+Формат:
+1) уточни факты;
+2) объясни права, обязанности и риски простым языком;
+3) предложи 2-3 варианта действий и последствия;
+4) дай рекомендуемый шаг;
+5) заверши коротким чеклистом на 24 часа.
+
+Правила:
+- не стыдить и не давить;
+- не просить лишние персональные данные;
+- не выдавать ответ за официальную юридическую консультацию;
+- при угрозах/вымогательстве/насилии рекомендовать помощь доверенного взрослого и 112.</textarea>
+                    <div class="instructions-info">
+                        <small>
+                            <span class="tip-label">Подсказка:</span> Это общий промпт, который задает базовое поведение персонажа.
+                            Изменения применяются при старте новой голосовой сессии.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Панель продуктов -->
+            <div class="product-panel" data-admin-only>
+                <h2 class="section-title">Кейсы и материалы (MVP)</h2>
+                <div class="product-controls">
+                    <button id="view-products" class="btn btn-secondary">Загрузить материалы</button>
+                    <input id="product-search" type="text" class="product-search-input" placeholder="Поиск кейсов или терминов...">
+                    <div class="search-options">
+                        <label class="search-option"><input type="checkbox" id="enable-vector" checked>Семантический</label>
+                        <label class="search-option"><input type="checkbox" id="enable-trigram" checked>Нечеткий</label>
+                    </div>
+                </div>
+                <ul id="product-list" class="product-list"></ul>
+                <form id="order-form" method="POST" action="/api/orders">
+                    <input type="hidden" name="_csrf" id="csrf-token">
+                    <input type="hidden" name="productId" id="order-product-id">
+                </form>
+            </div>
+
+            <!-- База знаний -->
+            <div class="knowledge-panel" data-admin-only>
+                <h2 class="section-title">База знаний</h2>
+                <div class="knowledge-controls">
+                    <input id="knowledge-title" type="text" placeholder="Название документа (опционально)">
+                    <div class="knowledge-actions">
+                        <input id="knowledge-file" type="file" accept=".txt,.md,.markdown,.json,.csv,text/plain,text/markdown,application/json,text/csv">
+                        <button id="upload-knowledge" class="btn btn-secondary">Загрузить документ</button>
+                        <button id="refresh-knowledge" class="btn btn-outline">Обновить список</button>
+                    </div>
+                    <input id="knowledge-search" type="text" placeholder="Поиск документа по названию...">
+                    <div id="knowledge-status" class="knowledge-status">Документы ещё не загружены.</div>
+                </div>
+                <div class="knowledge-table-wrap">
+                    <table class="knowledge-table">
+                        <thead>
+                            <tr>
+                                <th>Документ</th>
+                                <th>Файл</th>
+                                <th>Чанки</th>
+                                <th>Токены</th>
+                                <th>Дата</th>
+                                <th>Действие</th>
+                            </tr>
+                        </thead>
+                        <tbody id="knowledge-documents-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Раздел корзины -->
+            <div class="cart-section" data-admin-only>
+                <h2 class="section-title">Черновик плана действий</h2>
+                <table class="cart-table">
+                    <thead>
+                        <tr><th>Шаг</th><th>Приоритет</th><th>Комментарий</th></tr>
+                    </thead>
+                    <tbody id="cart-table-body"></tbody>
+                </table>
+                <div class="cart-actions">
+                    <span>Итоговая оценка: <span id="cart-total">0</span></span>
+                    <button id="submit-order" class="btn btn-primary">Сохранить черновик</button>
+                </div>
+            </div>
+
+            <!-- Панель статуса -->
+            <div class="status-panel" data-admin-only>
+                <h2 class="section-title">Состояние сессии</h2>
+                <div class="status-item">
+                    <span class="status-label">Соединение</span>
+                    <span id="status-connection" class="status-value status-disconnected">Отключено</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Голос</span>
+                    <span id="status-voice" class="status-value">Ash</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Модель</span>
+                    <span id="status-model" class="status-value">gpt-realtime-mini</span>
+                </div>
+            </div>
+
+            <!-- Управление голосом -->
+            <div class="voice-controls">
+                <h2 class="section-title">Голосовой диалог</h2>
+                <div class="voice-buttons">
+                    <button id="start-session" class="btn btn-primary">Начать диалог</button>
+                    <button id="stop-session" class="btn btn-danger" disabled>Завершить диалог</button>
+                    <button id="mute-btn" class="btn btn-outline" disabled>Отключить микрофон</button>
+                </div>
+            </div>
+
+            <!-- Визуализация аудио -->
+            <div class="audio-visualization">
+                <h2 class="section-title">Аудио-поток</h2>
+                <canvas id="audio-canvas" width="400" height="150"></canvas>
+                <div class="audio-levels">
+                    <div class="level-meter">
+                        <span class="level-label">Вход</span>
+                        <div class="level-bar">
+                            <div id="input-level" class="level-fill"></div>
+                        </div>
+                    </div>
+                    <div class="level-meter">
+                        <span class="status-label">Выход</span>
+                        <div class="level-bar">
+                            <div id="output-level" class="level-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Инъекция контекста -->
+            <div class="context-injection" data-admin-only>
+                <h2 class="section-title">Подсказка для симуляции</h2>
+                <div class="context-controls">
+                    <div class="context-input-area">
+                        <textarea
+                            id="context-input"
+                            class="context-textarea"
+                            placeholder="Например: 'Ученик столкнулся с кибербуллингом в чате класса' или 'Конфликт с возвратом товара на маркетплейсе'"
+                            rows="4"></textarea>
+                        <button id="send-context" class="btn btn-secondary" disabled>Передать подсказку</button>
+                    </div>
+                    <div class="context-options">
+                        <div class="context-option">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="interrupt-context" class="context-checkbox">
+                                <span class="checkbox-text">
+                                    <span class="option-title">Срочная подсказка</span><br>
+                                    <small>Включено: подсказка сразу прерывает текущий ответ</small><br>
+                                    <small>Выключено: подсказка применяется после текущего ответа</small>
+                                </span>
+                            </label>
+                        </div>
+                        <div class="context-option">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="background-context" class="context-checkbox">
+                                <span class="checkbox-text">
+                                    <span class="option-title">Тихий режим</span><br>
+                                    <small>Включено: подсказка применяется без явного ответа</small><br>
+                                    <small>Выключено: ассистент подтверждает применение подсказки</small>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Панель аналитики -->
+            <div class="analytics-panel" data-admin-only>
+                <h2 class="section-title">Учебная аналитика</h2>
+                <div class="analytics-charts">
+                    <canvas id="sessionsChart"></canvas>
+                    <canvas id="tokensChart"></canvas>
+                </div>
+                <div class="query-stats">Всего реплик: <span id="total-queries">0</span></div>
+            </div>
+
+            <!-- Лог разговора -->
+            <div class="conversation-section">
+                <h2 class="section-title">Диалог</h2>
+                <div id="conversation-log" class="conversation-log"></div>
+                <button id="clear-log" class="btn btn-outline">Очистить</button>
+            </div>
+
+            <!-- Лог активности агента -->
+            <div class="activity-section" data-admin-only>
+                <h2 class="section-title">Журнал действий</h2>
+                <div id="agent-activity-log" class="activity-log"></div>
+            </div>
+
+            <!-- Панель отладки -->
+            <div class="debug-panel" data-admin-only>
+                <h2 class="section-title">Техническая панель</h2>
+                <div id="debug-content" class="debug-content">
+                    <h3>Использование API и стоимость</h3>
+                    <div class="token-stats">
+                        <div class="token-row">
+                            <span class="token-label">Входные токены (Текст):</span>
+                            <span id="input-text-tokens" class="token-value">0</span>
+                            <span class="token-cost">($<span id="input-text-cost">0.00</span>)</span>
+                        </div>
+                        <div class="token-row">
+                            <span class="token-label">Входные токены (Аудио):</span>
+                            <span id="input-audio-tokens" class="token-value">0</span>
+                            <span class="token-cost">($<span id="input-audio-cost">0.00</span>)</span>
+                        </div>
+                        <div class="token-row">
+                            <span class="token-label">Выходные токены (Текст):</span>
+                            <span id="output-text-tokens" class="token-value">0</span>
+                            <span class="token-cost">($<span id="output-text-cost">0.00</span>)</span>
+                        </div>
+                        <div class="token-row">
+                            <span class="token-label">Выходные токены (Аудио):</span>
+                            <span id="output-audio-tokens" class="token-value">0</span>
+                            <span class="token-cost">($<span id="output-audio-cost">0.00</span>)</span>
+                        </div>
+                        <div class="token-row token-total">
+                            <span class="token-label">Всего токенов:</span>
+                            <span id="total-tokens" class="token-value">0</span>
+                            <span class="token-cost">($<span id="total-cost">0.00</span>)</span>
+                        </div>
+                        <div class="pricing-info">
+                            <small>
+                                <span class="pricing-heading">Стоимость Realtime API (на 1M токенов):</span><br>
+                                Текстовый вход: $<span id="price-text-input">5.00</span> (Кэшированный: $<span id="price-text-input-cached">2.50</span>) |
+                                Аудио вход: $<span id="price-audio-input">40.00</span> (Кэшированный: $<span id="price-audio-input-cached">2.50</span>)<br>
+                                Текстовый выход: $<span id="price-text-output">20.00</span> |
+                                Аудио выход: $<span id="price-audio-output">80.00</span><br>
+                                <em>Модель: <span id="current-model">gpt-realtime-mini</span></em><br>
+                                <span class="note-label">Примечание:</span> Текущие расчёты используют не-кэшированные ставки. Кэшированные токены стоят значительно дешевле.
+                            </small>
+                    </div>
+                    </div>
+
+                    <h3>Текущий системный промпт</h3>
+                    <pre id="system-prompt" class="debug-text">Промпт не установлен</pre>
+
+                    <h3>Информация о сессии</h3>
+                    <pre id="session-info" class="debug-text">Сессия не активна</pre>
+                    
+                    <h3>Последние события</h3>
+                    <pre id="event-log" class="debug-text">Ожидание событий...</pre>
+                </div>
+            </div>
+
+            <div class="debug-panel" data-admin-only>
+                <h2 class="section-title">Observability</h2>
+                <div class="instructions-info">
+                    <small>
+                        <span class="tip-label">Мониторинг:</span> Grafana и Prometheus доступны только после входа администратора.
+                    </small>
+                </div>
+                <div class="form-actions">
+                    <a id="grafana-link" class="btn btn-outline" href="http://127.0.0.1:3001" target="_blank" rel="noreferrer">Grafana</a>
+                    <a id="prometheus-link" class="btn btn-outline" href="http://127.0.0.1:9090" target="_blank" rel="noreferrer">Prometheus</a>
+                    <a id="metrics-link" class="btn btn-outline" href="/metrics" target="_blank" rel="noreferrer">Metrics</a>
+                </div>
+                <div id="observability-status" class="knowledge-status">Панель мониторинга доступна администратору.</div>
+            </div>
+        </main>
+
+        <!-- Футер -->
+        <footer class="footer">
+            <p>LawVoice MVP • Голосовые правовые симуляции для подростков • OpenAI Realtime API + WebRTC</p>
+            <div class="footer-links">
+                <a href="/profiles.html" data-admin-only>Управление персонажами</a>
+                <a href="https://platform.openai.com/docs/guides/realtime" target="_blank">Realtime API</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Скрипты -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="dist/bundle.js"></script>
+</body>
+</html>

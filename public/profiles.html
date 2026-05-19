@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LawVoice: Профили персонажей</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="brand-badge">LawVoice MVP</div>
+      <nav class="nav-links">
+        <a href="/">Диалог</a>
+        <a href="/admin">Администратор</a>
+      </nav>
+      <h1 class="title">Профили персонажей LawVoice</h1>
+      <p class="subtitle">Редактирование профилей доступно после входа администратора.</p>
+      <div class="admin-session-bar">
+        <div class="admin-session-summary">
+          <span id="admin-role-badge" class="status-badge">Пользователь</span>
+          <p id="admin-auth-status" class="subtitle">Только администратор может управлять профилями.</p>
+          <p id="admin-login-error" class="auth-note" hidden></p>
+        </div>
+        <form id="admin-login-form" class="admin-login-form">
+          <input id="admin-login-key" type="password" placeholder="ADMIN_API_KEY" autocomplete="current-password">
+          <button id="admin-login-btn" type="submit" class="btn btn-secondary">Войти как администратор</button>
+          <button id="admin-logout-btn" type="button" class="btn btn-outline" hidden>Выйти</button>
+        </form>
+      </div>
+    </header>
+    <main class="main">
+      <div class="profile-layout" data-admin-only>
+        <div class="profile-list-section">
+          <h2 class="section-title">Доступные профили</h2>
+          <ul id="profile-list" class="profile-list"></ul>
+        </div>
+        <div class="profile-editor-section">
+          <h2 class="section-title">Параметры профиля</h2>
+          <form id="profile-form" class="profile-form">
+            <input type="hidden" id="profile-id">
+            <label>Имя<input type="text" id="profile-name" required></label>
+            <label>Голос<input type="text" id="profile-voice"></label>
+            <label>Настроение<input type="text" id="profile-mood"></label>
+            <label>Правила<textarea id="profile-rules" rows="3"></textarea></label>
+            <label>Инструкции<textarea id="profile-instructions" rows="6"></textarea></label>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Сохранить</button>
+              <button type="button" id="new-profile" class="btn btn-secondary">Новый профиль</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="profiles.js"></script>
+</body>
+</html>
